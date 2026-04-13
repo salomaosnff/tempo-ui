@@ -1,0 +1,1 @@
+export { default as Primitive, type PrimitiveProps } from './Primitive'

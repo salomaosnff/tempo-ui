@@ -1,0 +1,13 @@
+{
+    "include": [
+        "vite.config.ts",
+        "tsdown.config.ts",
+        "scripts/**/*"
+    ],
+    "compilerOptions": {
+        "composite": true,
+        "types": [
+            "node"
+        ]
+    }
+}
