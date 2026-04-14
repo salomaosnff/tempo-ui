@@ -1,35 +1,6 @@
 import { computed, ref, shallowRef, type Ref } from "vue";
 
-export interface PageParams {
-    /**
-     * Cursor for pagination
-     * @example Sykdkw06wQIVR-05tyFbWw
-     */
-    cursor?: string;
 
-    /**
-     * Page size
-     * @example 20
-     */
-    page_size?: number;
-}
-
-export interface PageResponse<T> {
-    /** List of items */
-    items: Array<T>;
-
-    /** Total number of items */
-    total_items: number;
-
-    /** Whether there is a next page */
-    has_next: boolean;
-
-    /**
-     * Cursor for pagination
-     * @example Sykdkw06wQIVR-05tyFbWw
-     */
-    cursor: string | null;
-}
 
 /**
  * Hook for pagination

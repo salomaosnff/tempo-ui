@@ -31,7 +31,9 @@
     "prepublishOnly": "pnpm run build",
     "watch": "tsdown --watch",
     "check": "vue-tsc -p tsconfig.check.json --noEmit",
-    "size": "size-limit"
+    "size": "size-limit",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [
     "components",
@@ -59,6 +61,7 @@
     "typescript": "^6.0.2",
     "unplugin-vue": "^7.1.1",
     "vite": "^8.0.8",
+    "vitest": "^4.1.4",
     "vue": "^3.5.32",
     "vue-tsc": "^3.2.6"
   },
