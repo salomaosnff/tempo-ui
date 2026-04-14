@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "pnpm --filter @tempoui/core build"
+    "build": "pnpm --filter @tempoui/core build",
+    "dev": "pnpm --filter @tempoui/core dev"
   },
   "keywords": [],
   "author": "",
