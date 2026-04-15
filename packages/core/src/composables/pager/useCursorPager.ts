@@ -47,6 +47,7 @@ export interface CursorPager<T> extends Pager<T> {
 export function useCursorPager<T>(request: (params: CursorPagerParams) => CursorPagerResponse<T> | Promise<CursorPagerResponse<T>>, options: UseCursorPagerOptions = {}): CursorPager<T> {
     const { shallow = false, initialCursor } = options
     const lastResponse = shallowRef<CursorPagerResponse<T> | null>(null)
+    const lastParams = shallowRef<Record<string, any>>({})
     const items = (shallow ? shallowRef<T[]>([]) : ref<T[]>([])) as Ref<T[]>
     const status = ref<PagerState>(PagerState.IDLE)
     const error = ref<any>(null)
@@ -54,14 +55,18 @@ export function useCursorPager<T>(request: (params: CursorPagerParams) => Cursor
 
     const cursor = computed(() => lastResponse.value?.cursor ?? initialCursor ?? null)
 
-    async function send(params: CursorPagerParams = {}) {
+    async function send(params?: CursorPagerParams) {
         if (status.value === PagerState.PENDING) {
             throw new Error("Pager already loading")
         }
 
+        if (params) {
+            lastParams.value = params
+        }
+
         try {
             status.value = PagerState.PENDING
-            lastResponse.value = await request(params)
+            lastResponse.value = await request(lastParams.value)
             status.value = PagerState.DONE
             return lastResponse.value.items
         } catch (err) {
@@ -75,7 +80,7 @@ export function useCursorPager<T>(request: (params: CursorPagerParams) => Cursor
             return
         }
 
-        const newItems = await send({ cursor: cursor.value ?? undefined })
+        const newItems = await send({ ...lastParams.value, cursor: cursor.value ?? undefined })
 
         if (!newItems) {
             return
@@ -89,7 +94,7 @@ export function useCursorPager<T>(request: (params: CursorPagerParams) => Cursor
             return
         }
 
-        const newItems = await send({ cursor: cursor.value ?? undefined })
+        const newItems = await send({ ...lastParams.value, cursor: cursor.value ?? undefined })
 
         if (!newItems) {
             return
@@ -98,8 +103,9 @@ export function useCursorPager<T>(request: (params: CursorPagerParams) => Cursor
         items.value = reverse ? [...newItems, ...items.value] : [...items.value, ...newItems]
     }
 
-    async function load(params: Record<string, any>) {
+    async function load(params?: Record<string, any>) {
         const result = await send(params)
+
         items.value = result ?? []
     }
 

@@ -438,4 +438,55 @@ describe("useOffsetPager", () => {
       expect(pager.items.value).toEqual([{ id: 1 }, { id: 2 }]);
     });
   });
+
+  describe("parameter persistence", () => {
+    it("should preserve parameters from load in subsequent next calls", async () => {
+      const request = createMockRequest([
+        { items: [1, 2], total_items: 10 },
+        { items: [3, 4], total_items: 10 },
+      ]);
+
+      const pager = useOffsetPager(request);
+      await pager.load({ search: "viga", page_size: 2 });
+      await pager.next();
+
+      expect(request).toHaveBeenNthCalledWith(2, {
+        search: "viga",
+        page_size: 2,
+        offset: 2,
+      });
+    });
+
+    it("should preserve parameters from load in subsequent more calls", async () => {
+      const request = createMockRequest([
+        { items: [1, 2], total_items: 10 },
+        { items: [3, 4], total_items: 10 },
+      ]);
+
+      const pager = useOffsetPager(request);
+      await pager.load({ filter: "active" });
+      await pager.more();
+
+      expect(request).toHaveBeenNthCalledWith(2, {
+        filter: "active",
+        offset: 2,
+      });
+    });
+
+    it("should update parameters when calling load again", async () => {
+      const request = createMockRequest([
+        { items: [1], total_items: 10 },
+        { items: [2], total_items: 10 },
+        { items: [3], total_items: 10 },
+      ]);
+
+      const pager = useOffsetPager(request);
+      await pager.load({ q: "foo" });
+      await pager.next();
+      expect(request).toHaveBeenNthCalledWith(2, { q: "foo", offset: 1 });
+
+      await pager.load({ q: "bar" });
+      expect(request).toHaveBeenNthCalledWith(3, { q: "bar" });
+    });
+  });
 });

@@ -39,6 +39,7 @@ export function usePagePager<T>(request: (params: PagePagerParams) => PagePagerR
     let page = shallowRef(initialPage)
 
     const lastResponse = shallowRef<PagePagerResponse<T> | null>(null)
+    const lastParams = shallowRef<Record<string, any>>({})
     const items = (shallow ? shallowRef<T[]>([]) : ref<T[]>([])) as Ref<T[]>
     const status = ref<PagerState>(PagerState.IDLE)
     const error = ref<any>(null)
@@ -48,14 +49,18 @@ export function usePagePager<T>(request: (params: PagePagerParams) => PagePagerR
     })
 
 
-    async function send(params: PagePagerParams = {}) {
+    async function send(params?: PagePagerParams) {
         if (status.value === PagerState.PENDING) {
             throw new Error("Pager already loading")
         }
 
+        if (params) {
+            lastParams.value = params
+        }
+
         try {
             status.value = PagerState.PENDING
-            lastResponse.value = await request(params)
+            lastResponse.value = await request(lastParams.value)
             status.value = PagerState.DONE
             return lastResponse.value.items
         } catch (err) {
@@ -71,7 +76,7 @@ export function usePagePager<T>(request: (params: PagePagerParams) => PagePagerR
 
         page.value++
 
-        const newItems = await send({ page: page.value })
+        const newItems = await send({ ...lastParams.value, page: page.value })
 
         if (!newItems) {
             return
@@ -87,7 +92,7 @@ export function usePagePager<T>(request: (params: PagePagerParams) => PagePagerR
 
         page.value++
 
-        const newItems = await send({ page: page.value })
+        const newItems = await send({ ...lastParams.value, page: page.value })
 
         if (!newItems) {
             return
@@ -96,7 +101,7 @@ export function usePagePager<T>(request: (params: PagePagerParams) => PagePagerR
         items.value = reverse ? [...newItems, ...items.value] : [...items.value, ...newItems]
     }
 
-    async function load(params: Record<string, any>) {
+    async function load(params?: Record<string, any>) {
         const result = await send(params)
         items.value = result ?? []
     }

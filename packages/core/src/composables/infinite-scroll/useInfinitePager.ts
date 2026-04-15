@@ -1,9 +1,8 @@
-import { onMounted } from "vue";
-import { PagerState, type Pager } from "./pager";
+import { PagerState, type Pager } from "../pager/pager";
 import { useInfiniteScroll } from '@vueuse/core'
 
-type InfinitePagerScrollElement = Parameters<typeof useInfiniteScroll>[0]
-type InfinitePagerScrollOptions = Parameters<typeof useInfiniteScroll>[2] & {
+export type InfinitePagerScrollElement = Parameters<typeof useInfiniteScroll>[0]
+export type InfinitePagerScrollOptions = Parameters<typeof useInfiniteScroll>[2] & {
     immediate?: boolean
 }
 
@@ -20,7 +19,7 @@ export function useInfinitePager<T>(pager: Pager<T>, element: InfinitePagerScrol
     })
 
     if (options.immediate ?? true) {
-        onMounted(pager.load)
+        pager.load()
     }
 
     return {
