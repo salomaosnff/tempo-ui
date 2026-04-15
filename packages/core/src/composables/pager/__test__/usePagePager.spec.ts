@@ -1,11 +1,11 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "vite-plus/test";
 import { usePagePager } from "../usePagePager";
 import type { PagePagerParams, PagePagerResponse } from "../usePagePager";
 import { PagerState } from "../pager";
 
 function createMockRequest<T>(responses: PagePagerResponse<T>[]) {
   let callIndex = 0;
-  return vi.fn((params: PagePagerParams) => {
+  return vi.fn((_params: PagePagerParams) => {
     const response = responses[callIndex];
     if (!response) throw new Error("No more responses");
     callIndex++;
@@ -61,10 +61,7 @@ describe("usePagePager", () => {
     });
 
     it("should start with initialPage when provided", () => {
-      const pager = usePagePager(
-        () => ({ items: [], total_pages: 0 }),
-        { initialPage: 3 }
-      );
+      const pager = usePagePager(() => ({ items: [], total_pages: 0 }), { initialPage: 3 });
 
       expect(pager.page.value).toBe(3);
     });
@@ -72,9 +69,7 @@ describe("usePagePager", () => {
 
   describe("load", () => {
     it("should load items and set status to done", async () => {
-      const request = createMockRequest([
-        { items: [1, 2, 3], total_pages: 5 },
-      ]);
+      const request = createMockRequest([{ items: [1, 2, 3], total_pages: 5 }]);
 
       const pager = usePagePager(request);
       await pager.load();
@@ -84,9 +79,7 @@ describe("usePagePager", () => {
     });
 
     it("should pass custom params to the request", async () => {
-      const request = createMockRequest([
-        { items: ["a"], total_pages: 1 },
-      ]);
+      const request = createMockRequest([{ items: ["a"], total_pages: 1 }]);
 
       const pager = usePagePager(request);
       await pager.load({ page_size: 5, page: 2 });
@@ -95,9 +88,7 @@ describe("usePagePager", () => {
     });
 
     it("should update hasNext based on page vs total_pages", async () => {
-      const request = createMockRequest([
-        { items: [1, 2, 3], total_pages: 5 },
-      ]);
+      const request = createMockRequest([{ items: [1, 2, 3], total_pages: 5 }]);
 
       const pager = usePagePager(request);
       await pager.load();
@@ -155,9 +146,7 @@ describe("usePagePager", () => {
     });
 
     it("should do nothing when hasNext is false", async () => {
-      const request = createMockRequest([
-        { items: [1, 2, 3], total_pages: 1 },
-      ]);
+      const request = createMockRequest([{ items: [1, 2, 3], total_pages: 1 }]);
 
       const pager = usePagePager(request);
       await pager.load();
@@ -263,9 +252,7 @@ describe("usePagePager", () => {
     });
 
     it("should do nothing when hasNext is false", async () => {
-      const request = createMockRequest([
-        { items: [1, 2, 3], total_pages: 1 },
-      ]);
+      const request = createMockRequest([{ items: [1, 2, 3], total_pages: 1 }]);
 
       const pager = usePagePager(request);
       await pager.load();
@@ -335,11 +322,8 @@ describe("usePagePager", () => {
       const request = vi.fn(
         async () =>
           new Promise<PagePagerResponse<number>>((resolve) =>
-            setTimeout(
-              () => resolve({ items: [1], total_pages: 1 }),
-              100
-            )
-          )
+            setTimeout(() => resolve({ items: [1], total_pages: 1 }), 100),
+          ),
       );
 
       const pager = usePagePager(request);
@@ -366,11 +350,7 @@ describe("usePagePager", () => {
       await pager.load();
       states.push(pager.status.value);
 
-      expect(states).toEqual([
-        PagerState.IDLE,
-        PagerState.PENDING,
-        PagerState.DONE,
-      ]);
+      expect(states).toEqual([PagerState.IDLE, PagerState.PENDING, PagerState.DONE]);
     });
 
     it("should transition from IDLE -> PENDING -> ERROR on failure", async () => {
@@ -387,19 +367,13 @@ describe("usePagePager", () => {
       await pager.load();
       states.push(pager.status.value);
 
-      expect(states).toEqual([
-        PagerState.IDLE,
-        PagerState.PENDING,
-        PagerState.ERROR,
-      ]);
+      expect(states).toEqual([PagerState.IDLE, PagerState.PENDING, PagerState.ERROR]);
     });
   });
 
   describe("hasNext computation", () => {
     it("should be true when page < total_pages", async () => {
-      const request = createMockRequest([
-        { items: [1, 2], total_pages: 5 },
-      ]);
+      const request = createMockRequest([{ items: [1, 2], total_pages: 5 }]);
 
       const pager = usePagePager(request);
       await pager.load();
@@ -408,9 +382,7 @@ describe("usePagePager", () => {
     });
 
     it("should be false when page >= total_pages", async () => {
-      const request = createMockRequest([
-        { items: [1], total_pages: 1 },
-      ]);
+      const request = createMockRequest([{ items: [1], total_pages: 1 }]);
 
       const pager = usePagePager(request);
       await pager.load();
@@ -420,9 +392,7 @@ describe("usePagePager", () => {
     });
 
     it("should respect initialPage for hasNext computation", async () => {
-      const request = createMockRequest([
-        { items: [1], total_pages: 3 },
-      ]);
+      const request = createMockRequest([{ items: [1], total_pages: 3 }]);
 
       const pager = usePagePager(request, { initialPage: 3 });
       await pager.load();
@@ -432,9 +402,7 @@ describe("usePagePager", () => {
     });
 
     it("should be true when initialPage is before last page", async () => {
-      const request = createMockRequest([
-        { items: [1], total_pages: 5 },
-      ]);
+      const request = createMockRequest([{ items: [1], total_pages: 5 }]);
 
       const pager = usePagePager(request, { initialPage: 2 });
       await pager.load();
@@ -446,9 +414,7 @@ describe("usePagePager", () => {
 
   describe("shallow option", () => {
     it("should work with shallow = true", async () => {
-      const request = createMockRequest([
-        { items: [{ id: 1 }, { id: 2 }], total_pages: 1 },
-      ]);
+      const request = createMockRequest([{ items: [{ id: 1 }, { id: 2 }], total_pages: 1 }]);
 
       const pager = usePagePager(request, { shallow: true });
       await pager.load();
@@ -457,9 +423,7 @@ describe("usePagePager", () => {
     });
 
     it("should work with shallow = false (default)", async () => {
-      const request = createMockRequest([
-        { items: [{ id: 1 }, { id: 2 }], total_pages: 1 },
-      ]);
+      const request = createMockRequest([{ items: [{ id: 1 }, { id: 2 }], total_pages: 1 }]);
 
       const pager = usePagePager(request);
       await pager.load();

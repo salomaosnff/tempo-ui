@@ -9,7 +9,7 @@ import { provideButton, type ButtonProvider } from './useButton';
 export interface ButtonRootProps {
   disabled?: boolean
   loading?: boolean
-  onClick?: WaitableEvent<(event: MouseEvent) => Promise<1>>
+  onClick?: WaitableEvent<(event: MouseEvent) => Promise<any>>
 }
 
 const props = defineProps<ButtonRootProps>()

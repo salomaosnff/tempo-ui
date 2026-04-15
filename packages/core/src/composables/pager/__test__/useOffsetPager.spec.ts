@@ -1,11 +1,11 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "vite-plus/test";
 import { useOffsetPager } from "../useOffsetPager";
 import type { OffsetPagerParams, OffsetPagerResponse } from "../useOffsetPager";
 import { PagerState } from "../pager";
 
 function createMockRequest<T>(responses: OffsetPagerResponse<T>[]) {
   let callIndex = 0;
-  return vi.fn((params: OffsetPagerParams) => {
+  return vi.fn((_params: OffsetPagerParams) => {
     const response = responses[callIndex];
     if (!response) throw new Error("No more responses");
     callIndex++;
@@ -61,10 +61,7 @@ describe("useOffsetPager", () => {
     });
 
     it("should start with initialOffset when provided", () => {
-      const pager = useOffsetPager(
-        () => ({ items: [], total_items: 0 }),
-        { initialOffset: 10 }
-      );
+      const pager = useOffsetPager(() => ({ items: [], total_items: 0 }), { initialOffset: 10 });
 
       expect(pager.offset.value).toBe(10);
     });
@@ -72,9 +69,7 @@ describe("useOffsetPager", () => {
 
   describe("load", () => {
     it("should load items and set status to done", async () => {
-      const request = createMockRequest([
-        { items: [1, 2, 3], total_items: 10 },
-      ]);
+      const request = createMockRequest([{ items: [1, 2, 3], total_items: 10 }]);
 
       const pager = useOffsetPager(request);
       await pager.load();
@@ -84,9 +79,7 @@ describe("useOffsetPager", () => {
     });
 
     it("should pass custom params to the request", async () => {
-      const request = createMockRequest([
-        { items: ["a"], total_items: 1 },
-      ]);
+      const request = createMockRequest([{ items: ["a"], total_items: 1 }]);
 
       const pager = useOffsetPager(request);
       await pager.load({ page_size: 5, offset: 10 });
@@ -95,9 +88,7 @@ describe("useOffsetPager", () => {
     });
 
     it("should update hasNext based on offset vs total_items", async () => {
-      const request = createMockRequest([
-        { items: [1, 2, 3], total_items: 10 },
-      ]);
+      const request = createMockRequest([{ items: [1, 2, 3], total_items: 10 }]);
 
       const pager = useOffsetPager(request);
       await pager.load();
@@ -155,9 +146,7 @@ describe("useOffsetPager", () => {
     });
 
     it("should do nothing when hasNext is false", async () => {
-      const request = createMockRequest([
-        { items: [1, 2, 3], total_items: 3 },
-      ]);
+      const request = createMockRequest([{ items: [1, 2, 3], total_items: 3 }]);
 
       const pager = useOffsetPager(request);
       await pager.load();
@@ -242,9 +231,7 @@ describe("useOffsetPager", () => {
     });
 
     it("should do nothing when hasNext is false", async () => {
-      const request = createMockRequest([
-        { items: [1, 2, 3], total_items: 0 },
-      ]);
+      const request = createMockRequest([{ items: [1, 2, 3], total_items: 0 }]);
 
       const pager = useOffsetPager(request);
       await pager.load();
@@ -315,11 +302,8 @@ describe("useOffsetPager", () => {
       const request = vi.fn(
         async () =>
           new Promise<OffsetPagerResponse<number>>((resolve) =>
-            setTimeout(
-              () => resolve({ items: [1], total_items: 1 }),
-              100
-            )
-          )
+            setTimeout(() => resolve({ items: [1], total_items: 1 }), 100),
+          ),
       );
 
       const pager = useOffsetPager(request);
@@ -346,11 +330,7 @@ describe("useOffsetPager", () => {
       await pager.load();
       states.push(pager.status.value);
 
-      expect(states).toEqual([
-        PagerState.IDLE,
-        PagerState.PENDING,
-        PagerState.DONE,
-      ]);
+      expect(states).toEqual([PagerState.IDLE, PagerState.PENDING, PagerState.DONE]);
     });
 
     it("should transition from IDLE -> PENDING -> ERROR on failure", async () => {
@@ -367,19 +347,13 @@ describe("useOffsetPager", () => {
       await pager.load();
       states.push(pager.status.value);
 
-      expect(states).toEqual([
-        PagerState.IDLE,
-        PagerState.PENDING,
-        PagerState.ERROR,
-      ]);
+      expect(states).toEqual([PagerState.IDLE, PagerState.PENDING, PagerState.ERROR]);
     });
   });
 
   describe("hasNext computation", () => {
     it("should be true when offset < total_items", async () => {
-      const request = createMockRequest([
-        { items: [1, 2], total_items: 10 },
-      ]);
+      const request = createMockRequest([{ items: [1, 2], total_items: 10 }]);
 
       const pager = useOffsetPager(request);
       await pager.load();
@@ -403,9 +377,7 @@ describe("useOffsetPager", () => {
     });
 
     it("should respect initialOffset for hasNext computation", async () => {
-      const request = createMockRequest([
-        { items: [1], total_items: 5 },
-      ]);
+      const request = createMockRequest([{ items: [1], total_items: 5 }]);
 
       const pager = useOffsetPager(request, { initialOffset: 5 });
       await pager.load();
@@ -417,9 +389,7 @@ describe("useOffsetPager", () => {
 
   describe("shallow option", () => {
     it("should work with shallow = true", async () => {
-      const request = createMockRequest([
-        { items: [{ id: 1 }, { id: 2 }], total_items: 2 },
-      ]);
+      const request = createMockRequest([{ items: [{ id: 1 }, { id: 2 }], total_items: 2 }]);
 
       const pager = useOffsetPager(request, { shallow: true });
       await pager.load();
@@ -428,9 +398,7 @@ describe("useOffsetPager", () => {
     });
 
     it("should work with shallow = false (default)", async () => {
-      const request = createMockRequest([
-        { items: [{ id: 1 }, { id: 2 }], total_items: 2 },
-      ]);
+      const request = createMockRequest([{ items: [{ id: 1 }, { id: 2 }], total_items: 2 }]);
 
       const pager = useOffsetPager(request);
       await pager.load();

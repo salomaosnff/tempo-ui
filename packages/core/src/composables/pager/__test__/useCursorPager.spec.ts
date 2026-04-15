@@ -1,23 +1,11 @@
-import { describe, it, expect, vi } from "vitest";
-import { nextTick } from "vue";
+import { describe, it, expect, vi } from "vite-plus/test";
 import { useCursorPager } from "../useCursorPager";
 import type { CursorPagerParams, CursorPagerResponse } from "../useCursorPager";
 import { PagerState } from "../pager";
 
 function createMockRequest<T>(responses: CursorPagerResponse<T>[]) {
   let callIndex = 0;
-  return vi.fn((params: CursorPagerParams) => {
-    const response = responses[callIndex];
-    if (!response) throw new Error("No more responses");
-    callIndex++;
-    return response;
-  });
-}
-
-function createAsyncMockRequest<T>(responses: CursorPagerResponse<T>[], delay = 0) {
-  let callIndex = 0;
-  return vi.fn(async (params: CursorPagerParams) => {
-    if (delay > 0) await new Promise((r) => setTimeout(r, delay));
+  return vi.fn((_params: CursorPagerParams) => {
     const response = responses[callIndex];
     if (!response) throw new Error("No more responses");
     callIndex++;
@@ -90,7 +78,7 @@ describe("useCursorPager", () => {
           has_next: false,
           cursor: null,
         }),
-        { initialCursor: "abc123" }
+        { initialCursor: "abc123" },
       );
 
       expect(pager.cursor.value).toBe("abc123");
@@ -416,9 +404,9 @@ describe("useCursorPager", () => {
                   has_next: false,
                   cursor: null,
                 }),
-              100
-            )
-          )
+              100,
+            ),
+          ),
       );
 
       const pager = useCursorPager(request);
@@ -450,11 +438,7 @@ describe("useCursorPager", () => {
       await pager.load();
       states.push(pager.status.value);
 
-      expect(states).toEqual([
-        PagerState.IDLE,
-        PagerState.PENDING,
-        PagerState.DONE,
-      ]);
+      expect(states).toEqual([PagerState.IDLE, PagerState.PENDING, PagerState.DONE]);
     });
 
     it("should transition from IDLE -> PENDING -> ERROR on failure", async () => {
@@ -471,11 +455,7 @@ describe("useCursorPager", () => {
       await pager.load();
       states.push(pager.status.value);
 
-      expect(states).toEqual([
-        PagerState.IDLE,
-        PagerState.PENDING,
-        PagerState.ERROR,
-      ]);
+      expect(states).toEqual([PagerState.IDLE, PagerState.PENDING, PagerState.ERROR]);
     });
   });
 
