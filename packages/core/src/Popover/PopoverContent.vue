@@ -1,69 +1,43 @@
 <script setup lang="ts">
-import { computed, onMounted, useTemplateRef, watch, type ComponentPublicInstance } from 'vue'
+import { computed, onBeforeUnmount, onMounted, useId, useTemplateRef, watch, watchEffect, type ComponentPublicInstance } from 'vue'
 import { Primitive, type PrimitiveProps } from '../Primitive'
 import { usePopover } from './usePopover'
+import { useAnchorName } from './useAnchorName'
+import { useEventListener } from '@vueuse/core'
+import { primitiveProps } from '@/Primitive/usePrimitive'
 
 export type Side = 'top' | 'right' | 'bottom' | 'left'
 export type Align = 'start' | 'center' | 'end' | 'out-start' | 'out-end'
 
 export interface PopoverContentProps extends PrimitiveProps {
+  id?: string
+
   /**
    * The side of the trigger to place the popover.
    * @default 'bottom'
    */
   side?: Side
+
   /**
    * The alignment of the popover relative to the trigger.
    * @default 'center'
    */
   justify?: Align
+
+  /**
+   * 
+   */
+  anchorElement?: HTMLElement | string
+
+  popover?: 'auto' | 'hint' | 'manual'
 }
 
 const props = withDefaults(defineProps<PopoverContentProps>(), {
+  id: useId,
   as: 'div',
   side: 'bottom',
   justify: 'center',
-})
-
-const popover = usePopover()
-const popoverElement = useTemplateRef<ComponentPublicInstance | HTMLElement>('popoverElement')
-
-// Get the actual DOM element whether it's a component or raw element
-function getEl() {
-  if (!popoverElement.value) return null
-  return (popoverElement.value as any).$el ?? popoverElement.value
-}
-
-onMounted(() => {
-  const el = getEl()
-  if (el instanceof HTMLElement) {
-    // Synchronize native state with Vue state
-    el.addEventListener('toggle', (event: any) => {
-      if (event.newState === 'open') {
-        popover.open()
-      } else {
-        popover.close()
-      }
-    })
-    
-    // Initial sync if the popover is already open for some reason
-    if (el.matches(':popover-open')) {
-      popover.open()
-    }
-  }
-})
-
-// Control native state from Vue state
-watch(() => popover.isOpen, (next) => {
-  const el = getEl()
-  if (el instanceof HTMLElement) {
-    const isNativeOpen = el.matches(':popover-open')
-    if (next && !isNativeOpen) {
-      el.showPopover()
-    } else if (!next && isNativeOpen) {
-      el.hidePopover()
-    }
-  }
+  popover: 'auto'
 })
 
 /**
@@ -103,25 +77,82 @@ const positionArea = computed(() => {
     }
   }
 })
+
+const customAnchorName = useAnchorName(() => {
+  if (typeof props.anchorElement === 'string') {
+    return document.querySelector(props.anchorElement) as HTMLElement
+  }
+  return props.anchorElement
+})
+
+const popover = usePopover()
+
+watch(customAnchorName, popover.customAnchor, {
+  immediate: true,
+  flush: 'post'
+})
+
+watchEffect(() => {
+  popover.contentId = props.id
+})
+
+onBeforeUnmount(() => {
+  popover.contentId = ''
+})
+
+const popoverElement = useTemplateRef<ComponentPublicInstance | HTMLElement>('popoverElement')
+
+// Get the actual DOM element whether it's a component or raw element
+function getEl() {
+  if (!popoverElement.value) return null
+  return (popoverElement.value as any).$el ?? popoverElement.value
+}
+
+useEventListener(() => getEl(), 'toggle', (event) => {
+  if (event.newState === 'open') {
+    popover.open()
+  } else {
+    popover.close()
+  }
+})
+
+onMounted(() => {
+  const el = getEl()
+  if (el?.matches(':popover-open')) {
+    popover.open()
+  }
+})
+
+// Control native state from Vue state
+watch(() => popover.isOpen, (isOpen) => {
+  const el = getEl()
+
+  if (!el) {
+    return
+  }
+
+  if (isOpen) {
+    el.showPopover()
+  } else {
+    el.hidePopover()
+  }
+})
+
+
 </script>
 
 <template>
-  <Primitive 
-    ref="popoverElement" 
-    v-bind="props" 
-    :id="popover.popoverId" 
-    popover="auto" 
-    class="tempoui-popover-content"
-    :style="{
-      positionAnchor: popover.anchorName,
-    }"
-  >
-    <slot :popoverId="popover.popoverId" v-bind="popover" />
+  <Primitive ref="popoverElement" v-bind="primitiveProps(props)" :id :popover="props.popover"
+    class="tempoui-popover-content" :style="{
+      '--position-anchor': popover.currentAnchor
+    }">
+    <slot :contentId="id" />
   </Primitive>
 </template>
 
-<style scoped>
+<style>
 .tempoui-popover-content {
+  position-anchor: var(--position-anchor);
   /* Reset defaults */
   margin: 0;
   padding: 0;

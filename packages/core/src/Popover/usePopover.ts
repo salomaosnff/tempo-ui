@@ -1,10 +1,11 @@
 import { createContext } from '../_shared/createContext'
 
 export interface PopoverContext {
-  popoverId: string
-  anchorName: string
+  contentId: string
   initialAnchorName: string
+  currentAnchor: string
   isOpen: boolean
+  customAnchor(anchorName?: string | null): void
   open(): void
   close(): void
   toggle(): void
