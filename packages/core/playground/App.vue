@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { shallowRef } from 'vue';
-import { PopoverRoot, PopoverContent, PopoverTrigger } from '../src'
+import { shallowRef } from "vue";
+import { PopoverRoot, PopoverContent, PopoverTrigger } from "../src";
 </script>
 <template>
   <PopoverRoot v-slot="{ currentAnchor }">
-    <PopoverContent popover="manual" class="content">
-      Aqui fica o conteúdo
-    </PopoverContent>
+    <PopoverContent popover="manual" class="content"> Aqui fica o conteúdo </PopoverContent>
     <PopoverTrigger class="trigger-spiral">Clique aqui</PopoverTrigger>
   </PopoverRoot>
 </template>
@@ -118,7 +116,7 @@ import { PopoverRoot, PopoverContent, PopoverTrigger } from '../src'
 }
 
 .content::before {
-  content: '';
+  content: "";
   width: 0;
   height: 0;
   border: 10px solid transparent;

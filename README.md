@@ -59,16 +59,16 @@ To avoid prop-drilling, we use a centralized context for each component family.
 
 ```ts
 // useComponent.ts
-import { createContext } from "@/_shared/createContext"
+import { createContext } from "@/_shared/createContext";
 
 export interface ComponentProvider {
-  activeId: ComputedRef<string | undefined>
-  setActive(id: string): void
+  activeId: ComputedRef<string | undefined>;
+  setActive(id: string): void;
 }
 
-const { inject, provide } = createContext<ComponentProvider>('Component')
+const { inject, provide } = createContext<ComponentProvider>("Component");
 
-export { inject as useComponent, provide as provideComponent }
+export { inject as useComponent, provide as provideComponent };
 ```
 
 ### 3. Primitive & `asChild`
@@ -89,14 +89,14 @@ Every component must extend `Primitive` to allow the consumer to swap the underl
 TempoUI uses functional event props (e.g., `onSubmit` instead of `@submit`) to allow for `async` orchestration and side-effect management.
 
 ```ts
-import { waitEmit, type WaitableEvent } from '../_shared/waitEmit'
+import { waitEmit, type WaitableEvent } from "../_shared/waitEmit";
 
 export interface MyProps {
-  onConfirm: WaitableEvent<(id: string) => Promise<void>>
+  onConfirm: WaitableEvent<(id: string) => Promise<void>>;
 }
 
 // In the component:
-await waitEmit(props.onConfirm, 'item-id')
+await waitEmit(props.onConfirm, "item-id");
 ```
 
 ### 5. Form & Validation (Regle)
@@ -120,11 +120,14 @@ TempoUI integrates with [@regle/core](https://regle.js.org/) for schema-based va
 ## 📕 Core Concepts
 
 ### `Primitive`
+
 The building block of all components. It handles:
+
 - **`as`**: Changes the rendered HTML element (e.g., `as="span"`).
 - **`asChild`**: Delegates rendering to the first child element, merging attributes and events.
 
 ### Headless Philosophy
+
 TempoUI components do **not** come with styles. You are responsible for providing the visual layer using CSS, Tailwind, or any other styling solution.
 
 ```vue

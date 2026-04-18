@@ -1,37 +1,37 @@
 <script setup lang="ts">
-import { Primitive, type PrimitiveProps } from '../Primitive';
-import { useForm } from './useForm';
-import { primitiveProps } from '../Primitive/usePrimitive';
-import { computed } from 'vue';
+import { Primitive, type PrimitiveProps } from "../Primitive";
+import { useForm } from "./useForm";
+import { primitiveProps } from "../Primitive/usePrimitive";
+import { computed } from "vue";
 
 export interface FormSubmitProps extends PrimitiveProps {
-    disabled?: boolean
+  disabled?: boolean;
 }
 
 const props = withDefaults(defineProps<FormSubmitProps>(), {
-    as: 'button'
-})
+  as: "button",
+});
 
-const { isSubmitting, isInvalid, isNativeForm, submit, isSubmitted } = useForm()
+const { isSubmitting, isInvalid, isNativeForm, submit, isSubmitted } = useForm();
 
-const isDisabled = computed(() => props.disabled || isSubmitting() || isInvalid() || isSubmitted())
+const isDisabled = computed(() => props.disabled || isSubmitting() || isInvalid() || isSubmitted());
 
 const primitiveAttrs = computed(() => {
-    const attrs: Record<string, any> = primitiveProps(props);
+  const attrs: Record<string, any> = primitiveProps(props);
 
-    if (isNativeForm()) {
-        attrs.type = 'submit'
-    } else {
-        attrs.type = 'button'
-        attrs.onClick = submit
-    }
+  if (isNativeForm()) {
+    attrs.type = "submit";
+  } else {
+    attrs.type = "button";
+    attrs.onClick = submit;
+  }
 
-    return attrs
-})
+  return attrs;
+});
 </script>
 
 <template>
-    <Primitive v-bind="primitiveAttrs" :disabled="isDisabled">
-        <slot>Submit</slot>
-    </Primitive>
+  <Primitive v-bind="primitiveAttrs" :disabled="isDisabled">
+    <slot>Submit</slot>
+  </Primitive>
 </template>

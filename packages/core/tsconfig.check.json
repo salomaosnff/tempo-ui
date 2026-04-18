@@ -1,10 +1,5 @@
 {
-    // tsconfig for type-check only
-    "extends": "./tsconfig.app.json",
-    "exclude": [
-        "**/*.test.ts",
-        "src/**/*.story.vue",
-        "src/**/story/*",
-        "src/**/stories/*"
-    ]
+  // tsconfig for type-check only
+  "extends": "./tsconfig.app.json",
+  "exclude": ["**/*.test.ts", "src/**/*.story.vue", "src/**/story/*", "src/**/stories/*"]
 }

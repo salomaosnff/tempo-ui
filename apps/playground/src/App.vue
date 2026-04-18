@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ButtonArea, ButtonContent, ButtonLoading, ButtonRoot } from '@tempoui/core'
+import { ButtonArea, ButtonContent, ButtonLoading, ButtonRoot } from "@tempoui/core";
 
 async function handleClick() {
   return new Promise<void>((resolve) => {
     setTimeout(() => {
-      resolve()
-    }, 2000)
-  })
+      resolve();
+    }, 2000);
+  });
 }
 </script>
 

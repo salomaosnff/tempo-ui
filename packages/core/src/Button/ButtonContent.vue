@@ -1,13 +1,9 @@
 <script setup lang="ts">
-import { Primitive, type PrimitiveProps } from '../Primitive';
+import { Primitive, type PrimitiveProps } from "../Primitive";
 
+export interface ButtonContentProps extends PrimitiveProps {}
 
-export interface ButtonContentProps extends PrimitiveProps {
-
-}
-
-defineProps<ButtonContentProps>()
-
+defineProps<ButtonContentProps>();
 </script>
 
 <template>

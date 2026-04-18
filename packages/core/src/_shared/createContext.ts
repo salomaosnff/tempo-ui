@@ -7,27 +7,27 @@ import { inject, provide } from "vue";
  */
 export function createContext<T>(key: string) {
   function provideValue(value: T): T {
-    provide(key, value)
-    return value
+    provide(key, value);
+    return value;
   }
 
   function injectValue(): T | null {
-    return inject(key, null)
+    return inject(key, null);
   }
 
   function injectValueOrThrow(): T {
-    const value = injectValue()
+    const value = injectValue();
 
     if (!value) {
-      throw new Error(`Context ${String(key)} not found`)
+      throw new Error(`Context ${String(key)} not found`);
     }
 
-    return value
+    return value;
   }
 
   return {
     provide: provideValue,
     inject: injectValueOrThrow,
-    injectOptional: injectValue
-  }
+    injectOptional: injectValue,
+  };
 }

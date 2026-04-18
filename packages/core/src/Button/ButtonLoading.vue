@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { Primitive, type PrimitiveProps } from '../Primitive';
+import { Primitive, type PrimitiveProps } from "../Primitive";
 
-import { useButton } from './useButton';
+import { useButton } from "./useButton";
 
 export interface ButtonLoadingProps extends PrimitiveProps {}
 
-defineProps<ButtonLoadingProps>()
+defineProps<ButtonLoadingProps>();
 
-const { isLoading } = useButton()
+const { isLoading } = useButton();
 </script>
 
 <template>
